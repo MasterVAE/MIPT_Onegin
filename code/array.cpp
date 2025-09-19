@@ -1,10 +1,11 @@
 #include <ctype.h>
 #include <stdlib.h>
 #include <assert.h>
+#include <sys/stat.h>
 
 #include "array.h"
 
-void print(char** text, size_t size, FILE* file)
+void print(Line* text, size_t size, FILE* file)
 { 
     assert(text != NULL);
     assert(file != NULL);
@@ -14,7 +15,7 @@ void print(char** text, size_t size, FILE* file)
         fprintf(file, "[%lu] ", y);
         int i = 0;
         char c;
-        while((c = text[y][i++]) != '\n' && c != '\0') putc(c, file);
+        while((c = text[y].str[i++]) != '\n' && c != '\0') putc(c, file);
 
         putc('\n', file);
 
@@ -22,25 +23,25 @@ void print(char** text, size_t size, FILE* file)
     putc('\n', file);
 }
 
-void initialize_buffer(char** buffer, size_t* size, FILE* input_file, size_t file_size)
+void initialize_buffer(char** buffer, size_t* size, FILE* input_file)
 {
     assert(buffer != NULL);
     assert(size != NULL);
     assert(input_file != NULL);
 
-    char* buff = (char*)calloc(file_size + 1, sizeof(char));
-    size_t len = fread(buff, sizeof(char), file_size, input_file);
+    char* buff = (char*)calloc(*size + 1, sizeof(char));
+    size_t len = fread(buff, sizeof(char), *size, input_file);
 
     buff[len] = '\0';
 
-    printf("File size: %lld\n", (long long)file_size);
+    printf("File size: %lu\n", *size);
     printf("Buffer size: %lu\n", len);
 
     *size = len;
     *buffer = buff;
 }
 
-size_t initialize_text(char*** text, char* buffer, size_t size)
+size_t initialize_text(Line** text, char* buffer, size_t size)
 {
     assert(text != NULL);
     assert(buffer != NULL);
@@ -54,19 +55,26 @@ size_t initialize_text(char*** text, char* buffer, size_t size)
         }
     }
 
-    *text = (char**)calloc(count, sizeof(char*));
+    *text = (Line*)calloc(count, sizeof(Line));
     assert(*text != NULL);
 
-    (*text)[0] = buffer;
+    (*text)[0].str = buffer;
 
     size_t j = 1;
     for(size_t i = 0; i < size-1; i++)
     {
         if(buffer[i] == '\n')
         {       
-            (*text)[j++] = buffer+i+1;
+            (*text)[j++].str = buffer+i+1;
         }
     }
 
     return count;
+}
+
+size_t file_len(FILE* file)
+{
+    struct stat file_info;
+    fstat(fileno(file), &file_info);
+    return (size_t)file_info.st_size;
 }

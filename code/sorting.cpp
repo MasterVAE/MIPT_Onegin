@@ -1,12 +1,20 @@
 #include <stdlib.h>
 #include <assert.h>
+#include <string.h>
 
 #include "sorting.h"
+#include "array.h"
 
-int str_cmp(const char* str1, const char* str2)
+int str_cmp(const void* s1, const void* s2)
 {
-    assert(str1 != NULL);
-    assert(str2 != NULL);
+    assert(s1 != NULL);
+    assert(s2 != NULL);
+
+    const Line* line1 = (const Line*)s1;
+    const Line* line2 = (const Line*)s2;
+
+    const char* str1 = line1->str;
+    const char* str2 = line2->str;
 
     size_t i1 = 0;
     size_t i2 = 0;
@@ -31,15 +39,21 @@ int str_cmp(const char* str1, const char* str2)
     }
 }
 
-int str_rcmp(const char* str1, const char* str2)
+int str_rcmp(const void* s1, const void* s2)
 {
-    assert(str1 != NULL);
-    assert(str2 != NULL);
+    assert(s1 != NULL);
+    assert(s2 != NULL);
+
+    const Line* line1 = (const Line*)s1;
+    const Line* line2 = (const Line*)s2;
+
+    const char* str1 = line1->str;
+    const char* str2 = line2->str;
 
     size_t len1 = 0;
     size_t len2 = 0;
 
-    while(str1[len1] != '\n')
+    while(str1[len1] != '\n') // FIXME strchr а во вторых лучше держать длинну
     {
         len1++;
     }
@@ -86,7 +100,7 @@ void bubble_sort(char** text, size_t count)
     {
         for(size_t i = 0; i < iter; i++)
         {
-            if(str_cmp(text[i], text[i+1]) > 0)
+            if(str_cmp((void*)(text[i]), (void*)(text[i+1])) > 0)
             {
                 swap(text, i, i+1);
             }
@@ -104,53 +118,58 @@ void swap(char** matrix, size_t y1, size_t y2)
     matrix[y2] = buffer;
 }
 
-void sort(char** data, size_t size, int (*compare)(const char*, const char*))
+void sort(void* data, size_t num, size_t size, int (*compare)(const void*, const void*))
 {
     assert(data != NULL);
 
-    if(size == 0 || size == 1)
+    if(num == 0 || num == 1)
     {
         return;
     }
 
-
-    char** data_sm = (char**)calloc(size-1, sizeof(char*));
-    char** data_bg = (char**)calloc(size-1, sizeof(char*));
-
+    void* data_sm = (void*)calloc(num-1, size);
+    void* data_bg = (void*)calloc(num-1, size); 
 
     assert(data_sm != NULL);
     assert(data_bg != NULL);
 
-    size_t size_sm = 0;
-    size_t size_bg = 0;
+    size_t num_sm = 0;
+    size_t num_bg = 0;
 
-    char* middle = data[0];
+    void* middle = (void*)calloc(1, size);
 
-    for(size_t i = 1; i < size; i++)
+    memcpy(middle, data, size);
+
+    for(size_t i = 1; i < num; i++)
     {
-        if(compare(data[i], middle) < 0)
+        if(compare(data+i * size, middle) < 0)
         {
-            data_sm[size_sm++] = data[i];
+            memcpy(data_sm + num_sm * size, data+i * size, size);
+            num_sm++;
         }
         else
         {
-            data_bg[size_bg++] = data[i];
+            memcpy(data_bg + num_bg * size, data+i*size, size);
+            num_bg++;
         }
     }
 
-    sort(data_sm, size_sm, compare);
-    sort(data_bg, size_bg, compare);
+    sort(data_sm, num_sm, size, compare);
+    sort(data_bg, num_bg, size, compare);
 
     size_t global_counter = 0;
 
-    for(size_t i = 0; i < size_sm; i++)
+    for(size_t i = 0; i < num_sm; i++)
     {
-        data[global_counter++] = data_sm[i];
+        memcpy(data + global_counter * size, data_sm+i * size, size);
+        global_counter++;
     }
-    data[global_counter++] = middle;
-    for(size_t i = 0; i < size_bg; i++)
+    memcpy(data + global_counter * size, middle, size);
+    global_counter++;
+    for(size_t i = 0; i < num_bg; i++)
     {
-        data[global_counter++] = data_bg[i];
+        memcpy(data + global_counter * size, data_bg + i * size, size);
+        global_counter++;
     }
 
     free(data_sm);
