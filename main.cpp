@@ -39,15 +39,9 @@ int main()
     fclose(input_file);
     count = initialize_text(&text, buffer, size);
 
-    // int to_sort[6] = {10, 15, 13, 14, 7, 676};
-    // printf("%d %d %d %d %d %d\n", to_sort[0], to_sort[1], to_sort[2], to_sort[3], to_sort[4], to_sort[5]);
-    // sort(to_sort, 6, sizeof(int), int_cmp);
-    // printf("%d %d %d %d %d %d\n", to_sort[0], to_sort[1], to_sort[2], to_sort[3], to_sort[4], to_sort[5]);
-
-
     printf("Sorting...\n");
     // вставляем str_cmp или str_rcmp
-    sort((void*)text, count, sizeof(Line), str_cmp);
+    sort((void*)text, count, sizeof(Line), str_rcmp);
 
     printf("Printing...\n");
     FILE *output_file = fopen(output_file_name, "w");

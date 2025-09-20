@@ -1,6 +1,7 @@
 #include <stdlib.h>
 #include <assert.h>
 #include <string.h>
+#include <ctype.h>
 
 #include "sorting.h"
 #include "array.h"
@@ -18,17 +19,39 @@ int str_cmp(const void* s1, const void* s2)
 
     size_t i1 = 0;
     size_t i2 = 0;
+    while(str1[i1] == ' ')
+    {
+        i1++;
+    }
+    while(str2[i2] == ' ')
+    {
+        i2++;
+    }
     while(1)
     {
+        while(!isalnum(str1[i1]) && str1[i1] != ' ' && str1[i1] != '\n')
+        {
+            i1++;
+        }
+        while(!isalnum(str2[i2]) && str2[i2] != ' ' && str2[i2] != '\n')
+        {
+            i2++;
+        }
         if(str1[i1] == '\n' || str2[i2] == '\n')
         {
             return str1[i1] - str2[i2];
         }
         else
         {
-            if(str1[i1] != str2[i2])
+            char c1 = str1[i1];
+            char c2 = str2[i2];
+
+            if(isalpha(c1)) c1 = tolower(c1);
+            if(isalpha(c2)) c2 = tolower(c2);
+
+            if(c1 != c2)
             {
-                return str1[i1] - str2[i2];
+                return c1-c2;
             }
             else
             {
@@ -50,44 +73,76 @@ int str_rcmp(const void* s1, const void* s2)
     const char* str1 = line1->str;
     const char* str2 = line2->str;
 
-    size_t len1 = 0;
-    size_t len2 = 0;
+    int i1 = line1->lenght - 1;
+    int i2 = line2->lenght - 1;
 
-    while(str1[len1] != '\n') // FIXME strchr а во вторых лучше держать длинну
+
+    if(i1 < 0)
     {
-        len1++;
+        if(i2 < 0)
+        {
+            return 0;
+        } 
+        return -1;
     }
-
-    while(str2[len2] != '\n')
+    if(i2 < 0)
     {
-        len2++;
-    }
+        return 1;
+    } 
 
-    size_t i = 0;
+    while(str1[i1] == ' ' && i1 > 0)
+    {
+        i1--;
+    }
+    while(str2[i2] == ' ' && i2 > 0)
+    {
+        i2--;
+    }
     while(1)
     {
-        if(i >= len1)
+        while(!isalnum(str1[i1]) && str1[i1] != ' ' && i1 > 0)
         {
-            if(i >= len2)
+            i1--;
+        }
+        while(!isalnum(str2[i2]) && str2[i2] != ' ' && i2 > 0)
+        {
+            i2--;
+        }
+
+        if(i1 < 0)
+        {
+            if(i2 < 0)
             {
                 return 0;
-            }
+            } 
             return -1;
-            
         }
-        if(i >= len2)
+        if(i2 < 0)
         {
             return 1;
-        }
+        } 
 
-
-        if(str1[len1 - 1 - i] != str2[len2 - 1 -i])
+        if(i1 == 0 || i2 == 0)
         {
-            return str1[len1 - 1 - i] - str2[len2 - 1 -i];
+            return str1[i1] - str2[i2];
         }
         else
         {
-            i++;
+            char c1 = str1[i1];
+            char c2 = str2[i2];
+
+            if(isalpha(c1)) c1 = tolower(c1);
+            if(isalpha(c2)) c2 = tolower(c2);
+
+            if(c1 != c2)
+            {
+                return c1-c2;
+            }
+            else
+            {
+                i1--;
+                i2--;
+            }
         }
     }
 }
@@ -142,14 +197,14 @@ void sort(void* data, size_t num, size_t size, int (*compare)(const void*, const
 
     for(size_t i = 1; i < num; i++)
     {
-        if(compare(data+i * size, middle) < 0)
-        {
-            memcpy(data_sm + num_sm * size, data+i * size, size);
+        if(compare(data + i * size, middle) < 0)
+        {       
+            memcpy(data_sm + num_sm * size, data + i * size, size);
             num_sm++;
         }
         else
         {
-            memcpy(data_bg + num_bg * size, data+i*size, size);
+            memcpy(data_bg + num_bg * size, data + i * size, size);
             num_bg++;
         }
     }

@@ -12,10 +12,26 @@ void print(Line* text, size_t size, FILE* file)
 
     for(size_t y = 0; y < size; y++)
     {
-        fprintf(file, "[%lu] ", y);
+        fprintf(file, "[%lu] [%lu] ", y, text[y].lenght);
         int i = 0;
         char c;
-        while((c = text[y].str[i++]) != '\n' && c != '\0') putc(c, file);
+        short unspace = 0;
+        while((c = text[y].str[i++]) != '\n' && c != '\0')
+        { 
+            if(c != ' ')
+            {
+                unspace = 1;
+                putc(c, file);
+            }
+            else
+            {
+                if(unspace)
+                {
+                    putc(c, file);
+                }
+            }
+            
+        }
 
         putc('\n', file);
 
@@ -65,9 +81,12 @@ size_t initialize_text(Line** text, char* buffer, size_t size)
     {
         if(buffer[i] == '\n')
         {       
-            (*text)[j++].str = buffer+i+1;
+            (*text)[j].str = buffer+i+1;
+            (*text)[j-1].lenght = (size_t)((*text)[j].str - (*text)[j-1].str)-1;
+            j++;
         }
     }
+    (*text)[count-1].lenght = size - (size_t)((*text)[count-1].str - (*text)[0].str);
 
     return count;
 }
