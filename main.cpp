@@ -5,16 +5,6 @@
 #include "code/sorting.h"
 #include "code/array.h"
 
-int int_cmp(const void* s1, const void* s2)
-{
-    assert(s1 != NULL);
-    assert(s2 != NULL);
-
-    const int* ip1 = (const int*)s1;
-    const int* ip2 = (const int*)s2;
-
-    return *ip1 - *ip2;
-}
 
 int main()
 {

@@ -6,7 +6,7 @@
 typedef struct Line{
 
     char* str;
-    size_t lenght;
+    int lenght;
 } Line;
 
 void initialize_buffer(char** buffer, size_t* size, FILE* input_file);

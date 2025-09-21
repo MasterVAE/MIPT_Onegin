@@ -17,8 +17,8 @@ int str_cmp(const void* s1, const void* s2)
     const char* str1 = line1->str;
     const char* str2 = line2->str;
 
-    size_t i1 = 0;
-    size_t i2 = 0;
+    int i1 = 0;
+    int i2 = 0;
     while(str1[i1] == ' ')
     {
         i1++;
@@ -43,8 +43,8 @@ int str_cmp(const void* s1, const void* s2)
         }
         else
         {
-            char c1 = str1[i1];
-            char c2 = str2[i2];
+            int c1 = str1[i1];
+            int c2 = str2[i2];
 
             if(isalpha(c1)) c1 = tolower(c1);
             if(isalpha(c2)) c2 = tolower(c2);
@@ -128,8 +128,8 @@ int str_rcmp(const void* s1, const void* s2)
         }
         else
         {
-            char c1 = str1[i1];
-            char c2 = str2[i2];
+            int c1 = str1[i1];
+            int c2 = str2[i2];
 
             if(isalpha(c1)) c1 = tolower(c1);
             if(isalpha(c2)) c2 = tolower(c2);
@@ -182,8 +182,8 @@ void sort(void* data, size_t num, size_t size, int (*compare)(const void*, const
         return;
     }
 
-    void* data_sm = (void*)calloc(num-1, size);
-    void* data_bg = (void*)calloc(num-1, size); 
+    void* data_sm = calloc(num-1, size);
+    void* data_bg = calloc(num-1, size); 
 
     assert(data_sm != NULL);
     assert(data_bg != NULL);
@@ -191,20 +191,20 @@ void sort(void* data, size_t num, size_t size, int (*compare)(const void*, const
     size_t num_sm = 0;
     size_t num_bg = 0;
 
-    void* middle = (void*)calloc(1, size);
+    void* middle = calloc(1, size);
 
     memcpy(middle, data, size);
 
     for(size_t i = 1; i < num; i++)
     {
-        if(compare(data + i * size, middle) < 0)
+        if(compare((char*)data + i * size, middle) < 0)
         {       
-            memcpy(data_sm + num_sm * size, data + i * size, size);
+            memcpy((char*)data_sm + num_sm * size, (char*)data + i * size, size);
             num_sm++;
         }
         else
         {
-            memcpy(data_bg + num_bg * size, data + i * size, size);
+            memcpy((char*)data_bg + num_bg * size, (char*)data + i * size, size);
             num_bg++;
         }
     }
@@ -216,17 +216,18 @@ void sort(void* data, size_t num, size_t size, int (*compare)(const void*, const
 
     for(size_t i = 0; i < num_sm; i++)
     {
-        memcpy(data + global_counter * size, data_sm+i * size, size);
+        memcpy((char*)data + global_counter * size, (char*)data_sm+i * size, size);
         global_counter++;
     }
-    memcpy(data + global_counter * size, middle, size);
+    memcpy((char*)data + global_counter * size, middle, size);
     global_counter++;
     for(size_t i = 0; i < num_bg; i++)
     {
-        memcpy(data + global_counter * size, data_bg + i * size, size);
+        memcpy((char*)data + global_counter * size, (char*)data_bg + i * size, size);
         global_counter++;
     }
 
+    free(middle);
     free(data_sm);
     free(data_bg);
 }
